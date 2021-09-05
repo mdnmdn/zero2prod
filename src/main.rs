@@ -1,17 +1,10 @@
-use actix_web::{web, App, HttpRequest, HttpServer, Responder};
-
-async fn greet(req: HttpRequest) -> impl Responder {
-  let name = req.match_info().get("name").unwrap_or("world");
-  format!("Hello {}", &name)
-}
+use zero2prod::run;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
-  HttpServer::new(|| {
-    App::new()
-        .route("/", web::get().to(greet))
-        .route("/{name}", web::get().to(greet))
-  }).bind("127.0.0.1:8000")?
-    .run()
-    .await
+async fn main() -> Result<(), std::io::Error> {
+  let bind_address = "127.0.0.1:8000";
+  let listener = std::net::TcpListener::bind(bind_address).expect("Error opening tcp port");
+  println!("Starting server on http://{}", listener.local_addr().unwrap());
+  run(listener)?.await
 }
+
